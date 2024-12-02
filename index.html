@@ -66,27 +66,35 @@
     <div class="instructions">
       <p>Skriv inn navnene på deltakerne (ett navn per linje):</p>
     </div>
-    <textarea id="names" placeholder="Eks:&#10Kenneth&#10;Sveinung&#10;Per Christian&#10;Jorunn&#10;Kristin&#10;Tove&#10"></textarea>
+    <textarea id="names" placeholder="Kenneth
+Sveinung
+Per Christian
+Jorunn
+Kristin
+Tove"></textarea>
 
     <div class="instructions">
       <p>Legg til spesialregler (format: Navn1,Navn2 - hvem som ikke kan trekke hverandre):</p>
     </div>
-    <textarea id="rules" placeholder="Eks:&#10Per Christian,Sveinung"></textarea>
+    <textarea id="rules" placeholder="Eks:
+Kenneth,Sveinung
+Jorunn,Kristin"></textarea>
 
     <div>
       <button onclick="runDraw()">Trekk Nissevenner!</button>
       <button onclick="downloadResult()">Last ned resultat</button>
-      <button onclick="toggleMusic()">🎵 Spill/stopp julemusikk</button>
+      <button onclick="toggleMusic()">🎵 Spill/Stopp musikk</button>
     </div>
   </div>
 
-  <audio id="julemusikk" loop>
+  <audio id="julemusikk" loop autoplay muted>
     <source src="julemelodi.mp3" type="audio/mpeg">
     Nettleseren din støtter ikke lyd.
   </audio>
 
   <script>
     let drawResult = "";
+    let musicStarted = false; // For å spore om musikken er startet manuelt eller automatisk
 
     function runDraw() {
       const names = document.getElementById('names').value.trim().split('\n').map(name => name.trim());
@@ -135,17 +143,31 @@
       URL.revokeObjectURL(url);
     }
 
-   window.addEventListener('click', () => {
-  const audio = document.getElementById("julemusikk");
-  if (audio.paused) {
-    audio.play();
-  }
-});
+    // Automatisk musikkavspilling med demping
+    window.addEventListener('load', () => {
+      const audio = document.getElementById("julemusikk");
+      audio.muted = false; // Fjern demping
+      audio.play().catch((error) => {
+        console.warn("Automatisk avspilling er blokkert av nettleseren.", error);
+      });
+    });
 
+    // Start musikken ved første klikk
+    window.addEventListener('click', () => {
+      if (!musicStarted) {
+        const audio = document.getElementById("julemusikk");
+        audio.muted = false; // Fjern demping hvis det er nødvendig
+        audio.play();
+        musicStarted = true;
+      }
+    });
+
+    // Spill/Stopp musikken via knapp
     function toggleMusic() {
       const audio = document.getElementById("julemusikk");
       if (audio.paused) {
         audio.play();
+        musicStarted = true; // Marker at musikken er startet manuelt
       } else {
         audio.pause();
       }
