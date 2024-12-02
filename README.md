@@ -1,0 +1,1 @@
+Dette er en liten nettside for å lage hemmelige nissevenner i klassen. Tast inn navnene på dem som skal være med, legg inn eventuelle merknader (feks. om noen som ikke bør være nissevenn med hverandre) og trykk deretter på knappen "Trekk nissevenner". Sjekk at resultatet er tilfredsstillende og last ned. Eventuelt trykk på nytt for ønsket resultat.
