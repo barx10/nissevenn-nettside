@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trekning av nissevenner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: url('nissebilde.png') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      overflow-y: auto;
+      height: 100vh;
+    }
+    h1 {
+      color: #ffd700;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      padding-top: 20px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin: 20px;
+    }
+    .instructions {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      max-width: 300px;
+    }
+    textarea {
+      width: 300px;
+      height: 100px;
+      margin-bottom: 15px;
+      font-size: 14px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 5px;
+      color: #333;
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      background-color: #005f73;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #0a9396;
+    }
+    pre {
+      display: none; /* Skjuler pre-feltet når det er tomt */
+      text-align: left;
+      margin: 20px auto;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 5px;
+      width: 90%;
+      color: white;
+      white-space: pre-wrap;
+    }
+
+    /* Animasjon for dalende snø */
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      color: white;
+      font-size: 1em;
+      z-index: 1000;
+      pointer-events: none;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0);
+      }
+      100% {
+        transform: translateY(100vh);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="snow"></div>
+  <h1>Trekning av nissevenner</h1>
+  <div class="container">
+    <div class="instructions">
+      <p>Skriv inn navnene på deltakerne (ett navn per linje):</p>
+    </div>
+    <textarea id="names" placeholder="Eks: Kenneth&#10;Gjertsen&#10;Sveinung&#10;Jorunn&#10;PC;Sue Ellen&#10"></textarea>
+
+    <div class="instructions">
+      <p>Legg til spesialregler (format: Navn1,Navn2 - hvem som ikke kan trekke hverandre):</p>
+    </div>
+    <textarea id="rules" placeholder="Eks: Sveinung,PC&#10;Sue Ellen,Gjertsen"></textarea>
+
+    <div>
+      <button onclick="runDraw()">Trekk Nissevenner!</button>
+      <button onclick="downloadResult()">Last ned resultat</button>
+    </div>
+  </div>
+
+  <pre id="result"></pre>
+
+  <script>
+    let drawResult = "";
+
+    function runDraw() {
+      const names = document.getElementById('names').value.trim().split('\n').map(name => name.trim());
+      const rules = document.getElementById('rules').value.trim().split('\n').map(rule => rule.trim().split(','));
+
+      if (names.length < 2) {
+        document.getElementById('result').textContent = "Du må ha minst to deltakere!";
+        document.getElementById('result').style.display = "block";
+        return;
+      }
+
+      const givers = [...names];
+      let receivers = [...names];
+      let valid = false;
+
+      for (let i = 0; i < 100; i++) {
+        receivers = receivers.sort(() => Math.random() - 0.5);
+        valid = givers.every((giver, index) => {
+          const receiver = receivers[index];
+          return giver !== receiver && !rules.some(rule => rule.includes(giver) && rule.includes(receiver));
+        });
+        if (valid) break;
+      }
+
+      if (!valid) {
+        document.getElementById('result').textContent = "Kunne ikke finne en gyldig trekning. Prøv igjen.";
+        document.getElementById('result').style.display = "block";
+        drawResult = "";
+        return;
+      }
+
+      drawResult = givers.map((giver, index) => `${giver} -> ${receivers[index]}`).join('\n');
+      document.getElementById('result').textContent = drawResult;
+      document.getElementById('result').style.display = "block";
+    }
+
+    function downloadResult() {
+      if (!drawResult) {
+        alert("Ingen trekning er gjort ennå!");
+        return;
+      }
+
+      const blob = new Blob([drawResult], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "nissevenn_trekning.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Generer dalende snøfnugg
+    function createSnowflakes() {
+      const snowContainer = document.getElementById('snow');
+      const snowflake = document.createElement('div');
+      snowflake.classList.add('snowflake');
+      snowflake.textContent = '❄';
+      snowflake.style.left = Math.random() * 100 + 'vw';
+      snowflake.style.fontSize = Math.random() * 24 + 8 + 'px';
+      snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+      snowflake.style.opacity = Math.random();
+
+      snowContainer.appendChild(snowflake);
+
+      setTimeout(() => {
+        snowflake.remove();
+      }, 5000);
+    }
+
+    setInterval(createSnowflakes, 50);
+  </script>
+</body>
+</html>
