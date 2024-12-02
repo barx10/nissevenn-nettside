@@ -135,12 +135,12 @@
       URL.revokeObjectURL(url);
     }
 
-   window.addEventListener('load', () => {
-      const audio = document.getElementById("julemusikk");
-      audio.play().catch((error) => {
-        console.warn("Automatisk avspilling er blokkert av nettleseren.", error);
-      });
-    });
+   window.addEventListener('click', () => {
+  const audio = document.getElementById("julemusikk");
+  if (audio.paused) {
+    audio.play();
+  }
+});
 
     function toggleMusic() {
       const audio = document.getElementById("julemusikk");
