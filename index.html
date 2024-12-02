@@ -58,15 +58,35 @@
     button:hover {
       background-color: #0a9396;
     }
+    /* Animasjon for dalende snø */
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      color: white;
+      font-size: 1em;
+      z-index: 1000;
+      pointer-events: none;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      0% {
+        transform: translateY(0);
+      }
+      100% {
+        transform: translateY(100vh);
+      }
+    }
   </style>
 </head>
 <body>
+  <div id="snow"></div>
   <h1>Trekning av nissevenn</h1>
   <div class="container">
     <div class="instructions">
       <p>Skriv inn navnene på deltakerne (ett navn per linje):</p>
     </div>
-    <textarea id="names" placeholder="Kenneth
+    <textarea id="names" placeholder="Eks:
+Kenneth
 Sveinung
 Per Christian
 Jorunn
@@ -172,6 +192,26 @@ Jorunn,Kristin"></textarea>
         audio.pause();
       }
     }
+
+    // Generer dalende snøfnugg
+    function createSnowflakes() {
+      const snowContainer = document.getElementById('snow');
+      const snowflake = document.createElement('div');
+      snowflake.classList.add('snowflake');
+      snowflake.textContent = '❄';
+      snowflake.style.left = Math.random() * 100 + 'vw';
+      snowflake.style.fontSize = Math.random() * 24 + 8 + 'px';
+      snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+      snowflake.style.opacity = Math.random();
+
+      snowContainer.appendChild(snowflake);
+
+      setTimeout(() => {
+        snowflake.remove();
+      }, 5000);
+    }
+
+    setInterval(createSnowflakes, 50);
   </script>
 </body>
 </html>
