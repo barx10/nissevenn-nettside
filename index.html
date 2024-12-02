@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trekning av nissevenner</title>
+  <title>Trekning av nissevenn</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -58,60 +58,32 @@
     button:hover {
       background-color: #0a9396;
     }
-    pre {
-      display: none; /* Skjuler pre-feltet når det er tomt */
-      text-align: left;
-      margin: 20px auto;
-      padding: 10px;
-      background-color: rgba(0, 0, 0, 0.7);
-      border-radius: 5px;
-      width: 90%;
-      color: white;
-      white-space: pre-wrap;
-    }
-
-    /* Animasjon for dalende snø */
-    .snowflake {
-      position: fixed;
-      top: -10px;
-      color: white;
-      font-size: 1em;
-      z-index: 1000;
-      pointer-events: none;
-      animation: fall linear infinite;
-    }
-
-    @keyframes fall {
-      0% {
-        transform: translateY(0);
-      }
-      100% {
-        transform: translateY(100vh);
-      }
-    }
   </style>
 </head>
 <body>
-  <div id="snow"></div>
-  <h1>Trekning av nissevenner</h1>
+  <h1>Trekning av nissevenn</h1>
   <div class="container">
     <div class="instructions">
       <p>Skriv inn navnene på deltakerne (ett navn per linje):</p>
     </div>
-    <textarea id="names" placeholder="Eks:Kenneth&#10;Kristin&#10;Sveinung&#10;Jorunn&#10;Per Christian&#10;Sue Ellen&#10"></textarea>
+    <textarea id="names" placeholder="Kenneth\nSveinung\nPer Christian\nJorunn\nKristin\nTove"></textarea>
 
     <div class="instructions">
       <p>Legg til spesialregler (format: Navn1,Navn2 - hvem som ikke kan trekke hverandre):</p>
     </div>
-    <textarea id="rules" placeholder="Eks:Sveinung,Per Christian&#10"></textarea>
+    <textarea id="rules" placeholder="Eks:\nKenneth,Sveinung\nJorunn,Kristin"></textarea>
 
     <div>
       <button onclick="runDraw()">Trekk Nissevenner!</button>
       <button onclick="downloadResult()">Last ned resultat</button>
+      <button onclick="toggleMusic()">🎵 Spill/ Stopp musikk</button>
     </div>
   </div>
 
-  <pre id="result"></pre>
+  <audio id="julemusikk" loop>
+    <source src="julemelodi.mp3" type="audio/mpeg">
+    Nettleseren din støtter ikke lyd.
+  </audio>
 
   <script>
     let drawResult = "";
@@ -121,8 +93,7 @@
       const rules = document.getElementById('rules').value.trim().split('\n').map(rule => rule.trim().split(','));
 
       if (names.length < 2) {
-        document.getElementById('result').textContent = "Du må ha minst to deltakere!";
-        document.getElementById('result').style.display = "block";
+        alert("Du må ha minst to deltakere!");
         return;
       }
 
@@ -132,23 +103,18 @@
 
       for (let i = 0; i < 100; i++) {
         receivers = receivers.sort(() => Math.random() - 0.5);
-        valid = givers.every((giver, index) => {
-          const receiver = receivers[index];
-          return giver !== receiver && !rules.some(rule => rule.includes(giver) && rule.includes(receiver));
-        });
+        valid = givers.every((giver, index) => giver !== receivers[index] && !rules.some(rule => rule.includes(giver) && rule.includes(receivers[index])));
         if (valid) break;
       }
 
       if (!valid) {
-        document.getElementById('result').textContent = "Kunne ikke finne en gyldig trekning. Prøv igjen.";
-        document.getElementById('result').style.display = "block";
+        alert("Kunne ikke finne en gyldig trekning. Prøv igjen.");
         drawResult = "";
         return;
       }
 
       drawResult = givers.map((giver, index) => `${giver} -> ${receivers[index]}`).join('\n');
-      document.getElementById('result').textContent = drawResult;
-      document.getElementById('result').style.display = "block";
+      alert(drawResult);
     }
 
     function downloadResult() {
@@ -169,25 +135,14 @@
       URL.revokeObjectURL(url);
     }
 
-    // Generer dalende snøfnugg
-    function createSnowflakes() {
-      const snowContainer = document.getElementById('snow');
-      const snowflake = document.createElement('div');
-      snowflake.classList.add('snowflake');
-      snowflake.textContent = '❄';
-      snowflake.style.left = Math.random() * 100 + 'vw';
-      snowflake.style.fontSize = Math.random() * 24 + 8 + 'px';
-      snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
-      snowflake.style.opacity = Math.random();
-
-      snowContainer.appendChild(snowflake);
-
-      setTimeout(() => {
-        snowflake.remove();
-      }, 5000);
+    function toggleMusic() {
+      const audio = document.getElementById("julemusikk");
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
     }
-
-    setInterval(createSnowflakes, 50);
   </script>
 </body>
 </html>
